@@ -17,7 +17,7 @@ class Player {
   // 이렇게 쓰면 순서대로 매개변수를 넣어줘야 함
   // Player(this.name, this.xp);
 
-  // 이렇게 쓰면 순서대로 쓰지 않고 명시시켜줄수있다.
+  // 이렇게 중괄호를 사용하면 순서대로 쓰지 않고 명시시켜줄수있다.
   // Named constructor parameter
   Player({
     required this.name,
@@ -38,7 +38,7 @@ class Player {
   Player.createRedPlayer(
     String name,
     int age,
-  )   : this.age = age,
+  )   : this.age = age, // :을 넣음으로써 player 객체 초기화 하겠다고 선언 
         this.name = name,
         this.team = 'red',
         this.xp = 30;
