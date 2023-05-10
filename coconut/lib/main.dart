@@ -1,160 +1,98 @@
-import 'package:coconut/widgets/button.dart';
-import 'package:coconut/widgets/currency_card.dart';
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(const App()); // 앱의 root는 Matrial과 iOS디자인 중 하나를 선택해야함
+  runApp(const App());
 }
 
-// App를 위젯으로 바꾸기 위해 statelessWidget 상속받음
-// StatelessWidget : 화면에 뭔가를 띄워줌
-class App extends StatelessWidget {
+// 절대 루트. 많은 자식 요소를 가지고 있다.
+class App extends StatefulWidget {
   const App({super.key});
 
-  // 위젯이 된다는 것 = build 메소드를 구현해야한다는 계약을 맺는 것
+  @override
+  State<App> createState() => _AppState();
+}
 
-  // 부모 클래스에 있는 메소드를 override
+class _AppState extends State<App> {
+  bool showTitle = true;
+
+  void toggleTitle() {
+    setState(() {
+      showTitle = !showTitle;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    // 이 메소드는 또 다른 위젯을 return해야 함
-    // MaterialApp은 root스타일이 될 것을 선택하는것
     return MaterialApp(
-      // Scaffold : 화면의 구성 및 구조에 관한 걸 가지고 있음
+      theme: ThemeData(
+        textTheme: const TextTheme(
+          titleLarge: TextStyle(
+            color: Colors.amber,
+          ),
+        ),
+      ),
       home: Scaffold(
-        backgroundColor: const Color(0xFF181818),
-        body: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 20,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(
-                  height: 80,
+        backgroundColor: const Color(0xFFF4EDDB),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              showTitle ? const MyLargeTitle() : const Text('nothing'),
+              IconButton(
+                onPressed: toggleTitle,
+                icon: const Icon(
+                  Icons.cake_rounded,
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        const Text(
-                          'Hey, Selena',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 28,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        Text(
-                          'Welcome back',
-                          style: TextStyle(
-                            color: Colors.white.withOpacity(0.8),
-                            fontSize: 18,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                const SizedBox(
-                  height: 70,
-                ),
-                Text(
-                  'Total Balance',
-                  style: TextStyle(
-                    fontSize: 22,
-                    color: Colors.white.withOpacity(0.8),
-                  ),
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                const Text(
-                  '\$5 194 482',
-                  style: TextStyle(
-                    fontSize: 48,
-                    fontWeight: FontWeight.w800,
-                    color: Colors.white,
-                  ),
-                ),
-                const SizedBox(
-                  height: 30,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: const [
-                    Button(
-                        text: 'Transfer',
-                        bgColor: Color(0xFFF1B33B),
-                        textColor: Colors.black),
-                    Button(
-                        text: 'Request',
-                        bgColor: Color(0xFF1F2113),
-                        textColor: Colors.white),
-                  ],
-                ),
-                const SizedBox(
-                  height: 100,
-                ),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Wallets',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 36,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    Text(
-                      'View All',
-                      style: TextStyle(
-                        color: Colors.white.withOpacity(0.8),
-                        fontSize: 18,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
-                const CurrencyCard(
-                  name: 'Euro',
-                  code: 'EUR',
-                  amount: '6 428',
-                  icon: Icons.euro_rounded,
-                  isInverted: false,
-                ),
-                Transform.translate(
-                  offset: const Offset(0, -20),
-                  child: const CurrencyCard(
-                    name: 'Bitcoin',
-                    code: 'BTC',
-                    amount: '9 50',
-                    icon: Icons.currency_bitcoin,
-                    isInverted: true,
-                  ),
-                ),
-                Transform.translate(
-                  offset: const Offset(0, -40),
-                  child: const CurrencyCard(
-                    name: 'Dollar',
-                    code: 'USD',
-                    amount: '6 428',
-                    icon: Icons.attach_money,
-                    isInverted: false,
-                  ),
-                ),
-              ],
-            ),
+              )
+            ],
           ),
         ),
       ),
     );
-    //scaffold
+  }
+}
+
+class MyLargeTitle extends StatefulWidget {
+  const MyLargeTitle({
+    super.key,
+  });
+
+  @override
+  State<MyLargeTitle> createState() => _MyLargeTitleState();
+}
+
+class _MyLargeTitleState extends State<MyLargeTitle> {
+  //위젯 라이프사이클
+
+  // 상태변수를 초기화해주는 기능.
+  // 항상 빌드보다 전에 호출되어야 한다
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    print('initState');
+  }
+
+  // 위젯이 스크린에서 제거될 때 호출되는 메서드
+  // API 업데이트, 이벤트 구독취소, form 리스너로부터 벗어나고 싶을 때 쓰임
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    print('dispose');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    print('build');
+    return Text(
+      'My Large Title',
+      style: TextStyle(
+        fontSize: 30,
+        // dart는 null safety라서 null값에 접근하는걸 싫어함.
+        // !를 넣어서 확신시켜주거나, ?를 넣어서 있다면 넣으라고 명령할 수 있다.
+        color: Theme.of(context).textTheme.titleLarge?.color,
+      ),
+    );
   }
 }
