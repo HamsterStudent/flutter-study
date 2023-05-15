@@ -26,13 +26,16 @@ class _DetailScreenState extends State<DetailScreen> {
   bool isLiked = false;
 
   Future initPrefs() async {
+    // 사용자의 저장소에 connection 만듬
     prefs = await SharedPreferences.getInstance();
     final likedToons = prefs.getStringList('likedToons');
 
     // 최초로 어플리케이션 실행했을 때 체크
     if (likedToons != null) {
       if (likedToons.contains(widget.id) == true) {
-        isLiked = true;
+        setState(() {
+          isLiked = true;
+        });
       }
     } else {
       await prefs.setStringList('likedToons', []);
@@ -47,6 +50,22 @@ class _DetailScreenState extends State<DetailScreen> {
     initPrefs();
   }
 
+  onHeartTap() async {
+    final likedToons = prefs.getStringList('likedToons');
+    if (likedToons != null) {
+      if (isLiked) {
+        likedToons.remove(widget.id);
+      } else {
+        likedToons.add(widget.id);
+      }
+      // 저장소에 다시 List를 저장해줌
+      await prefs.setStringList('likedToons', likedToons);
+      setState(() {
+        isLiked = !isLiked;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -57,8 +76,10 @@ class _DetailScreenState extends State<DetailScreen> {
         foregroundColor: Colors.green.shade300,
         actions: [
           IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.favorite_border_outlined),
+            onPressed: onHeartTap,
+            icon: Icon(
+              isLiked ? Icons.favorite : Icons.favorite_border_outlined,
+            ),
           ),
         ],
         title: Text(
