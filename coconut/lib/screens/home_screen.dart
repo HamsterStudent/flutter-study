@@ -1,130 +1,78 @@
+import 'package:coconut/models/webtoon_model.dart';
+import 'package:coconut/services/api_service.dart';
+import 'package:coconut/widgets/webtoon_widget.dart';
 import 'package:flutter/material.dart';
-import 'dart:async';
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+class HomeScreen extends StatelessWidget {
+  HomeScreen({super.key});
 
-  @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-  static const twentyFiveMinutes = 1500;
-  int totalSeconds = twentyFiveMinutes;
-  bool isRunning = false;
-  int totalPomodoros = 0;
-  // late는 이 프로퍼티를 당장 초기화 시키지 않아도 된다는 약속
-  late Timer timer;
-
-  void onTick(Timer timer) {
-    if (totalSeconds == 0) {
-      setState(() {
-        totalPomodoros++;
-        isRunning = false;
-        totalSeconds = twentyFiveMinutes;
-      });
-      timer.cancel();
-    } else {
-      setState(() {
-        totalSeconds--;
-      });
-    }
-  }
-
-  void onStartPressed() {
-    // periodic : Timer.periodic(일정 주기마다, 함수를 실행)
-    timer = Timer.periodic(const Duration(seconds: 1), onTick);
-    setState(() {
-      isRunning = true;
-    });
-  }
-
-  void onPausePressed() {
-    timer.cancel();
-    setState(() {
-      isRunning = false;
-    });
-  }
-
-  String format(int seconds) {
-    var duration = Duration(seconds: seconds);
-    return duration.toString().split(".").first.substring(2, 7);
-  }
+  final Future<List<WebtoonModel>> webtoons = ApiService.getTodayToons();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
-      body: Column(
-        children: [
-          Flexible(
-            flex: 1,
-            child: Container(
-              alignment: Alignment.bottomCenter,
-              child: Text(
-                format(totalSeconds),
-                style: TextStyle(
-                  color: Theme.of(context).cardColor,
-                  fontSize: 89,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        elevation: 1,
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.green.shade300,
+        title: const Text(
+          "Today's Toons",
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.w600,
           ),
-          Flexible(
-            flex: 2,
-            child: Center(
-              child: IconButton(
-                iconSize: 120,
-                color: Theme.of(context).cardColor,
-                onPressed: isRunning ? onPausePressed : onStartPressed,
-                icon: Icon(
-                  isRunning
-                      ? Icons.pause_circle_outline_outlined
-                      : Icons.play_circle_outline,
-                ),
-              ),
-            ),
-          ),
-          Flexible(
-            flex: 1,
-            child: Row(
+        ),
+      ),
+      body: FutureBuilder(
+        future: webtoons, // 기다릴 값
+        // snapshot : future의 상태
+        // builder function : context, snapshot 전달받음
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            // ListView.builder : 사용자가 보고 있는 아이템만 build한다
+            // 보고 있지 않는 항목은 메모리에서 삭제
+            return Column(
               children: [
-                Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).cardColor,
-                      borderRadius: BorderRadius.circular(50),
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          'Pomodoros',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w600,
-                            color:
-                                Theme.of(context).textTheme.displayLarge!.color,
-                          ),
-                        ),
-                        Text(
-                          '$totalPomodoros',
-                          style: TextStyle(
-                            fontSize: 58,
-                            fontWeight: FontWeight.w600,
-                            color:
-                                Theme.of(context).textTheme.displayLarge!.color,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                const SizedBox(
+                  height: 50,
                 ),
+                // Expanded는 child를 확장해서 남는 공간을 채우게 함
+                Expanded(
+                  child: makeList(snapshot),
+                )
               ],
-            ),
-          ),
-        ],
+            );
+          }
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        },
+      ),
+    );
+  }
+
+  // 잦은 빌더 사용으로 복잡해져서 Extract Method로 추출
+  ListView makeList(AsyncSnapshot<List<WebtoonModel>> snapshot) {
+    return ListView.separated(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 10,
+        vertical: 20,
+      ),
+      scrollDirection: Axis.horizontal,
+      // data의 갯수를 말해줌으로써 성능에 이점을 줌
+      itemCount: snapshot.data!.length,
+      // ListView.builder가 아이템을 build할 때 호출하는 함수
+      itemBuilder: (context, index) {
+        var webtoon = snapshot.data![index];
+        return Webtoon(
+          title: webtoon.title,
+          thumb: webtoon.thumb,
+          id: webtoon.id,
+        );
+      },
+      separatorBuilder: (context, index) => const SizedBox(
+        width: 40,
       ),
     );
   }
