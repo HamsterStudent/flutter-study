@@ -1,368 +1,380 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
 
 void main() {
   runApp(const App());
 }
 
-class Date extends StatelessWidget {
-  final String text;
-  final bool isInverted;
-
-  const Date({
-    super.key,
-    required this.text,
-    required this.isInverted,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Text(
-          text,
-          style: TextStyle(
-            color: isInverted ? Colors.white : Colors.white.withOpacity(0.5),
-            fontSize: 56,
-            letterSpacing: 2,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        const SizedBox(
-          width: 15,
-        ),
-      ],
-    );
-  }
-}
-
-class Card extends StatelessWidget {
-  final String dailyText;
-  final Color bgColor;
-  final String first, secone, third;
-  final String startMonth, startDate, endMonth, endDate;
-
-  String? others;
-
-  Card({
-    super.key,
-    required this.dailyText,
-    required this.bgColor,
-    required this.first,
-    required this.secone,
-    required this.third,
-    required this.startMonth,
-    required this.startDate,
-    required this.endMonth,
-    required this.endDate,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
-            Row(
-              children: [
-                Column(
-                  children: [
-                    CardDate(
-                      startMonth: startMonth,
-                      startDate: startDate,
-                      endMonth: endMonth,
-                      endDate: endDate,
-                    ),
-                  ],
-                ),
-                const SizedBox(
-                  width: 30,
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Column(
-                      children: [
-                        Text(
-                          dailyText,
-                          style: const TextStyle(
-                            fontSize: 48,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        )
-                      ],
-                    ),
-                    attendList(
-                      first: first,
-                      secone: secone,
-                      third: third,
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class CardDate extends StatelessWidget {
-  final String startMonth, startDate, endMonth, endDate;
-
-  const CardDate(
-      {super.key,
-      required this.startMonth,
-      required this.startDate,
-      required this.endMonth,
-      required this.endDate});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Column(
-          children: [
-            Text(
-              startMonth,
-              style: const TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.w600,
-              ),
-            )
-          ],
-        ),
-        Column(
-          children: [
-            Text(
-              startDate,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w400,
-              ),
-            )
-          ],
-        ),
-        const SizedBox(
-          height: 30,
-        ),
-        Column(
-          children: [
-            Text(
-              endMonth,
-              style: const TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.w600,
-              ),
-            )
-          ],
-        ),
-        Column(
-          children: [
-            Text(
-              endDate,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w400,
-              ),
-            )
-          ],
-        ),
-      ],
-    );
-  }
-}
-
-class attendList extends StatelessWidget {
-  final String first, secone, third;
-  String? others;
-
-  attendList(
-      {super.key,
-      required this.first,
-      required this.secone,
-      required this.third});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Text(
-          first,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w800,
-            color: first == 'ME' ? Colors.black : Colors.black.withOpacity(0.5),
-          ),
-        ),
-        const SizedBox(
-          width: 20,
-        ),
-        Text(
-          secone,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w800,
-            color: Colors.black.withOpacity(0.5),
-          ),
-        ),
-        const SizedBox(
-          width: 20,
-        ),
-        Text(
-          third,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w800,
-            color: Colors.black.withOpacity(0.5),
-          ),
-        ),
-        Text(
-          others = '',
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w800,
-            color: Colors.black.withOpacity(0.5),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
+// 절대 루트. 많은 자식 요소를 가지고 있다.
 class App extends StatelessWidget {
   const App({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: Scaffold(
-        backgroundColor: const Color(0xFF1F1F1F),
-        body: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 10,
-            ),
-            child: Column(
-              children: [
-                const SizedBox(
-                  height: 80,
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSwatch(
+          backgroundColor: const Color(0xFFe64d3d),
+        ),
+        textTheme: const TextTheme(
+          displayLarge: TextStyle(
+            color: Color(0xFF232B55),
+          ),
+        ),
+        cardColor: const Color(0xFFF4EDDB),
+      ),
+      home: const HomeScreen(),
+    );
+  }
+}
+
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  static const twentyFiveMinutes = 1500;
+  int totalSeconds = twentyFiveMinutes;
+  bool isRunning = false;
+  bool takeRestTime = false;
+  late Timer timer;
+  int round = 0;
+  int goal = 0;
+  Map<String, int> timeList = {
+    "15": 900,
+    "20": 1200,
+    "25": 1500,
+    "30": 1800,
+    "35": 2100,
+  };
+
+  void onTick(Timer timer) {
+    if (totalSeconds == 0 && !takeRestTime) {
+      if (round == 3) {
+        setState(() {
+          goal++;
+          round = 0;
+          isRunning = false;
+          totalSeconds = 300;
+          takeRestTime = true;
+        });
+      } else {
+        setState(() {
+          round++;
+          isRunning = false;
+          totalSeconds = twentyFiveMinutes;
+        });
+      }
+      timer.cancel();
+    } else {
+      setState(() {
+        totalSeconds--;
+      });
+    }
+    if (totalSeconds == 0 && takeRestTime) {
+      setState(() {
+        takeRestTime = false;
+        isRunning = false;
+        totalSeconds = twentyFiveMinutes;
+      });
+      timer.cancel();
+    }
+  }
+
+  void onStartPressed() {
+    timer = Timer.periodic(const Duration(seconds: 1), onTick);
+    setState(() {
+      isRunning = true;
+    });
+  }
+
+  void onPausePressed() {
+    timer.cancel();
+    setState(() {
+      isRunning = false;
+    });
+  }
+
+  void onReset() {
+    timer.cancel();
+    setState(() {
+      isRunning = false;
+      totalSeconds = twentyFiveMinutes;
+    });
+  }
+
+  void selected15() {
+    setState(() {
+      totalSeconds = timeList['15']!;
+    });
+  }
+
+  void selected20() {
+    setState(() {
+      totalSeconds = timeList['20']!;
+    });
+  }
+
+  void selected25() {
+    setState(() {
+      totalSeconds = timeList['25']!;
+    });
+  }
+
+  void selected30() {
+    setState(() {
+      totalSeconds = timeList['30']!;
+    });
+  }
+
+  void selected35() {
+    setState(() {
+      totalSeconds = timeList['35']!;
+    });
+  }
+
+  String minuteFormat(int seconds) {
+    var duration = Duration(seconds: seconds);
+    return duration.toString().split(".").first.substring(5, 7);
+  }
+
+  String secondsFormat(int seconds) {
+    var duration = Duration(seconds: seconds);
+    return duration.toString().split(".").first.substring(2, 4);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.background,
+      body: Column(
+        children: [
+          Flexible(
+            flex: 1,
+            child: Container(
+              alignment: Alignment.centerLeft,
+              child: const Text(
+                'POMOTIMER',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              ),
+            ),
+          ),
+          Flexible(
+            flex: 1,
+            child: Container(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 30),
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                    ),
+                    child: Text(
+                      secondsFormat(totalSeconds),
+                      style: TextStyle(
+                          fontSize: 84,
+                          fontWeight: FontWeight.w900,
+                          color: Theme.of(context).colorScheme.background),
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 30),
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                    ),
+                    child: Text(
+                      minuteFormat(totalSeconds),
+                      style: TextStyle(
+                          fontSize: 84,
+                          fontWeight: FontWeight.w900,
+                          color: Theme.of(context).colorScheme.background),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Flexible(
+            flex: 1,
+            child: Container(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 30),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Container(
-                      clipBehavior: Clip.hardEdge,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      child: Image.network(
-                        'https://ae01.alicdn.com/kf/S83d03e2ad32e4437b0ac60d1de24207dP/GoodSmile-GSC-1615-Hamtaro-Anime-PVC.jpg_Q90.jpg_.webp',
-                        width: 60,
-                        height: 60,
+                    OutlinedButton(
+                      onPressed: selected15,
+                      child: const Text(
+                        '15',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
-                    const Icon(
-                      Icons.add,
-                      color: Colors.white,
-                      size: 30,
+                    OutlinedButton(
+                      onPressed: selected20,
+                      child: const Text(
+                        '20',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                    OutlinedButton(
+                      onPressed: selected25,
+                      child: const Text(
+                        '25',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                    OutlinedButton(
+                      onPressed: selected30,
+                      child: const Text(
+                        '30',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                    OutlinedButton(
+                      onPressed: selected35,
+                      child: const Text(
+                        '35',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white,
+                        ),
+                      ),
                     ),
                   ],
                 ),
-                const SizedBox(
-                  height: 30,
-                ),
-                Container(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+              ),
+            ),
+          ),
+          Flexible(
+            flex: 2,
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  IconButton(
+                    iconSize: 120,
+                    color: Theme.of(context).cardColor,
+                    onPressed: isRunning ? onPausePressed : onStartPressed,
+                    icon: isRunning
+                        ? const Icon(Icons.pause_circle_rounded)
+                        : const Icon(
+                            Icons.play_circle_rounded,
+                          ),
+                  ),
+                  IconButton(
+                    onPressed: onReset,
+                    icon: const Icon(
+                      Icons.restore,
+                    ),
+                  )
+                ],
+              ),
+            ),
+          ),
+          Flexible(
+            flex: 1,
+            child: Container(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  Column(
                     children: [
                       Text(
-                        'MONDAY 16',
+                        '$round/4',
                         style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.white.withOpacity(0.7),
+                          color: Colors.white.withOpacity(0.5),
+                          fontWeight: FontWeight.w700,
+                          fontSize: 24,
                         ),
                       ),
                       const SizedBox(
                         height: 10,
                       ),
-                      Row(
-                        children: const [
-                          Date(
-                            text: 'TODAY',
-                            isInverted: true,
-                          ),
-                          Date(
-                            text: '17',
-                            isInverted: false,
-                          ),
-                          Date(
-                            text: '18',
-                            isInverted: false,
-                          ),
-                          Date(
-                            text: '19',
-                            isInverted: false,
-                          ),
-                          Date(
-                            text: '20',
-                            isInverted: false,
-                          ),
-                        ],
+                      const Text(
+                        'ROUND',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 14,
+                        ),
                       ),
                     ],
                   ),
-                ),
-                const SizedBox(
-                  height: 30,
-                ),
-                Card(
-                  dailyText: 'DESIGN\nMEETING',
-                  bgColor: const Color(0xFFFEF754),
-                  first: 'ALEX',
-                  secone: 'HELENA',
-                  third: 'NANA',
-                  startMonth: '11',
-                  startDate: '30',
-                  endMonth: '12',
-                  endDate: '20',
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                Card(
-                  dailyText: 'DAILY\nPROJECT',
-                  bgColor: const Color(0xFF9c6bce),
-                  first: 'ME',
-                  secone: 'RICHARD',
-                  third: 'CIRY',
-                  startMonth: '12',
-                  startDate: '35',
-                  endMonth: '14',
-                  endDate: '10',
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                Card(
-                  dailyText: 'WEEKLY\nPLANNING',
-                  bgColor: const Color(0xFFbcee4b),
-                  first: 'DEN',
-                  secone: 'NANA',
-                  third: 'MARK',
-                  startMonth: '15',
-                  startDate: '00',
-                  endMonth: '16',
-                  endDate: '30',
-                ),
-              ],
+                  Column(
+                    children: [
+                      Text(
+                        '$goal/12',
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.5),
+                          fontWeight: FontWeight.w700,
+                          fontSize: 24,
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      const Text(
+                        'GOAL',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+class button extends StatelessWidget {
+  final String minute;
+  final int seconds;
+
+  const button({super.key, required this.minute, required this.seconds});
+
+  @override
+  Widget build(BuildContext context) {
+    return OutlinedButton(
+      onPressed: () {},
+      child: Text(
+        minute,
+        style: const TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.w800,
         ),
       ),
     );
